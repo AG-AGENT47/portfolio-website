@@ -1,0 +1,212 @@
+/* ============================================================
+   DESIGN SYSTEM — tokens, resets, typography, shared UI
+   ============================================================ */
+
+:root {
+  --paper:     #f4ecdf;
+  --paper-2:   #ebe0cc;
+  --ink:       #1f1812;
+  --ink-2:     #3a2e25;
+  --rust:      #b34a1f;
+  --rust-deep: #7a2c10;
+  --peach:     #e8b88a;
+  --muted:     #7a6a5a;
+
+  --nav-h: 64px;
+  --section-px: 56px;
+  --max-w: 1280px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--rust); color: var(--paper); }
+
+img, svg { display: block; max-width: 100%; }
+
+a { color: inherit; }
+
+/* ---- Section wrapper ---- */
+.fn-section {
+  position: relative;
+  padding: 140px 0 200px;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.fn-section.vis { opacity: 1; }
+.fn-section.dark { background: var(--ink); color: var(--paper); }
+.fn-section.dark .fn-section-label { color: var(--peach); }
+.fn-section.dark .fn-section-title em { color: var(--peach); }
+
+.fn-section-inner {
+  padding: 0 var(--section-px);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.fn-section-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--rust);
+  text-transform: lowercase;
+  margin-bottom: 16px;
+}
+
+.fn-section-title {
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 110px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  margin: 0 0 80px;
+  max-width: 1100px;
+}
+.fn-section-title em { font-style: italic; color: var(--rust-deep); }
+.fn-section.dark .fn-section-title em { color: var(--peach); }
+
+/* ---- Scroll-stagger animation ---- */
+.fn-section .fn-section-label,
+.fn-section .fn-section-title,
+.fn-section .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fn-section.vis .fn-section-label {
+  transition-delay: 0.05s; opacity: 1; transform: none;
+}
+.fn-section.vis .fn-section-title {
+  transition-delay: 0.18s; opacity: 1; transform: none;
+}
+.fn-section.vis .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
+  transition-delay: 0.32s;
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Tide SVG ---- */
+.fn-tide {
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  width: 100%; height: 100px;
+  pointer-events: none;
+  display: block;
+  z-index: 1;
+}
+.fn-tide.flip { transform: scaleY(-1); top: -1px; bottom: auto; }
+
+/* ---- CTA buttons ---- */
+.fn-cta {
+  display: inline-block;
+  padding: 14px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: transform 0.25s ease, background 0.2s, color 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.fn-cta.primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+.fn-cta.primary:hover { background: var(--rust-deep); border-color: var(--rust-deep); }
+.fn-cta.ghost   { color: var(--ink); border: 1px solid var(--ink); background: transparent; }
+.fn-cta.ghost:hover { background: var(--ink); color: var(--paper); }
+
+/* ---- API pill ---- */
+.fn-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(31, 24, 18, 0.2);
+  border-radius: 999px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+}
+.fn-pill-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #2d8755;
+  animation: fn-pulse 1.6s ease-out infinite;
+  flex-shrink: 0;
+}
+.fn-pill.down .fn-pill-dot { background: var(--rust); animation-name: fn-pulse-rust; }
+.fn-pill-label { opacity: 0.5; }
+.fn-pill-state { font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.fn-pill-graph { width: 60px; height: 16px; color: var(--rust); flex-shrink: 0; }
+.fn-pill-ms { color: var(--muted); }
+
+/* ---- Keyframes ---- */
+@keyframes fn-pulse {
+  0%   { box-shadow: 0 0 0 0    rgba(45, 135, 85, 0.6); }
+  100% { box-shadow: 0 0 0 10px rgba(45, 135, 85, 0); }
+}
+@keyframes fn-pulse-rust {
+  0%   { box-shadow: 0 0 0 0    rgba(179, 74, 31, 0.6); }
+  100% { box-shadow: 0 0 0 10px rgba(179, 74, 31, 0); }
+}
+@keyframes fn-pulse-green {
+  0%   { box-shadow: 0 0 0 0   rgba(74, 222, 128, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+}
+@keyframes fn-rise {
+  to { opacity: 1; transform: none; }
+}
+@keyframes fn-nav-pop {
+  from { transform: translateX(-50%) scale(0); }
+  to   { transform: translateX(-50%) scale(1); }
+}
+@keyframes fn-drift {
+  0%,100% { transform: translate(0,0) rotate(0); }
+  33%     { transform: translate(8%,-6%) rotate(40deg); }
+  66%     { transform: translate(-6%,8%) rotate(-30deg); }
+}
+@keyframes fn-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fn-bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40%         { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .fn-section,
+  .fn-section .fn-section-label,
+  .fn-section .fn-section-title,
+  .fn-section .fn-section-inner > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .fn-tide { display: none; }
+}
+
+/* ---- Mobile base overrides ---- */
+@media (max-width: 879px) {
+  :root { --section-px: 24px; }
+  .fn-section { padding: 80px 0 120px; }
+  .fn-section-title {
+    font-size: clamp(36px, 10vw, 72px);
+    margin-bottom: 48px;
+  }
+}

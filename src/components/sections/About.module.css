@@ -1,0 +1,26 @@
+.about {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  max-width: 1100px;
+}
+.about p {
+  font-family: var(--font-serif), serif;
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0;
+}
+.about p:first-child::first-letter {
+  font-size: 52px;
+  line-height: 1;
+  padding-right: 8px;
+  color: var(--rust);
+  font-style: italic;
+  float: left;
+}
+
+@media (max-width: 879px) {
+  .about { grid-template-columns: 1fr; gap: 24px; }
+  .about p { font-size: 18px; }
+}

@@ -1,0 +1,82 @@
+.exp { display: flex; flex-direction: column; }
+
+.row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  padding: 36px 0;
+  border-top: 1px solid rgba(31,24,18,0.15);
+}
+.row:last-child { border-bottom: 1px solid rgba(31,24,18,0.15); }
+
+.when {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--muted);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcomingBadge {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--peach);
+  color: var(--ink);
+  width: fit-content;
+}
+
+.body h3 {
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.role {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  color: var(--rust);
+  font-size: 20px;
+  margin: 4px 0 8px;
+}
+.loc {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+
+.body ul {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.body ul li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.body ul li::before {
+  content: "—";
+  position: absolute; left: 0;
+  color: var(--rust);
+}
+
+@media (max-width: 879px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 28px 0;
+  }
+  .when { padding-top: 0; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .body h3 { font-size: 26px; }
+}

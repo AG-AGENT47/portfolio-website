@@ -1,0 +1,167 @@
+.hero {
+  position: relative;
+  padding: 120px 56px 160px;
+  min-height: 880px;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  width: 680px; height: 680px;
+  right: -200px; top: 60px;
+  background: radial-gradient(circle, rgba(179,74,31,0.45) 0%, rgba(179,74,31,0.18) 40%, transparent 70%);
+  filter: blur(50px);
+  border-radius: 50%;
+  transition: transform 0.9s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+  z-index: 0;
+}
+.blobAlt {
+  width: 480px; height: 480px;
+  left: -140px; top: 360px; right: auto;
+  background: radial-gradient(circle, rgba(31,24,18,0.25) 0%, transparent 65%);
+}
+
+.grid {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 80px;
+  margin-top: 40px;
+  align-items: start;
+}
+
+.text { display: flex; flex-direction: column; }
+
+.eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--rust);
+  text-transform: lowercase;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fn-rise 0.9s 0.1s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.h1 {
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  font-size: clamp(72px, 9vw, 144px);
+  line-height: 1.0;
+  letter-spacing: -0.035em;
+  margin: 0 0 40px;
+  color: var(--ink);
+  opacity: 0;
+  animation: fn-rise 0.9s 0.18s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.h1 span { display: block; }
+.h1Italic { font-style: italic; color: var(--rust-deep); }
+
+.lede {
+  font-family: var(--font-serif), serif;
+  font-size: 22px;
+  line-height: 1.5;
+  max-width: 560px;
+  color: var(--ink-2);
+  margin: 0 0 36px;
+  opacity: 0;
+  animation: fn-rise 0.9s 0.32s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.lede em { font-style: italic; color: var(--rust); }
+
+.pills {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin: 0 0 36px;
+  opacity: 0;
+  animation: fn-rise 0.9s 0.42s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.pill {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(31,24,18,0.2);
+  color: var(--ink-2);
+  background: rgba(255,255,255,0.4);
+}
+.pillSwe { border-color: var(--ink); color: var(--ink); }
+.pillMl  { border-color: var(--rust); color: var(--rust); }
+.pillOpen {
+  background: var(--rust); color: var(--paper); border-color: var(--rust);
+}
+.pillOpen::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80;
+  margin-right: 8px; vertical-align: 1px;
+  animation: fn-pulse-green 1.6s ease-out infinite;
+}
+
+.ctaRow {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  opacity: 0;
+  animation: fn-rise 0.9s 0.52s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.meta {
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+.portrait {
+  aspect-ratio: 4/5;
+  background: linear-gradient(135deg, var(--paper-2) 0%, #d9c8a8 100%);
+  border-radius: 4px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(31,24,18,0.3);
+  opacity: 0;
+  animation: fn-rise 0.9s 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.portraitStripes {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(31,24,18,0.05) 0, rgba(31,24,18,0.05) 1px,
+    transparent 1px, transparent 16px
+  );
+}
+.portraitCap {
+  position: absolute; bottom: 14px; left: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px; color: var(--ink-2);
+  letter-spacing: 0.05em;
+}
+
+.metaList {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--ink-2);
+  display: flex; flex-direction: column; gap: 6px;
+  opacity: 0;
+  animation: fn-rise 0.9s 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.metaList span {
+  color: var(--rust);
+  display: inline-block;
+  width: 76px;
+  letter-spacing: 0.1em;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 879px) {
+  .hero {
+    padding: 80px 24px 120px;
+    min-height: auto;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 24px;
+  }
+  .meta { display: none; }
+  .h1 { font-size: clamp(60px, 14vw, 100px); margin-bottom: 28px; }
+  .lede { font-size: 18px; }
+}
