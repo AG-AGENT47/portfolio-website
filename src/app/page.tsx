@@ -17,6 +17,11 @@ export const revalidate = 3600;
 export default async function Home() {
   const data = await getPortfolioData();
 
+  // The chat sidebar describes the service powering it — sourced from the
+  // RAG chatbot's own project row so it stays in sync with portfolio-store.
+  const chatbotProject =
+    data.projects.find((p) => /rag|chatbot/i.test(p.title)) ?? null;
+
   return (
     <TideProvider>
       <FnDefs />
@@ -29,7 +34,7 @@ export default async function Home() {
         <Skills skills={data.skills} />
         <Education education={data.education} achievements={data.achievements} />
         {/* v2: <Photography photos={data.photos} /> */}
-        <Chat />
+        <Chat project={chatbotProject} />
         <Contact personal={data.personal} />
       </main>
     </TideProvider>

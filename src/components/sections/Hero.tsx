@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { MagneticCta } from '@/components/ui/MagneticCta';
 import { Tide } from '@/components/ui/Tide';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { richText, splitList } from '@/lib/richText';
 import type { PersonalInfo } from '@/lib/types';
 import styles from './Hero.module.css';
 
@@ -10,9 +11,28 @@ interface HeroProps {
   personal: PersonalInfo;
 }
 
+// Last whitespace-separated token of the name is set apart (italic); the rest leads.
+function splitName(name: string): [string, string] {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length < 2) return [name, ''];
+  const last = parts.pop() as string;
+  return [parts.join(' '), last];
+}
+
+const PILL_CLASSES = [styles.pillSwe, styles.pillMl, styles.pillOpen];
+
 export function Hero({ personal }: HeroProps) {
   const [mp, setMp] = useState({ x: 0.5, y: 0.5 });
   const reduced = useReducedMotion();
+
+  const [firstName, lastName] = splitName(personal.name);
+  const pills = splitList(personal.hero_pills);
+  const meta: Array<[string, string | undefined]> = [
+    ['now', personal.now_location],
+    ['reading', personal.now_reading],
+    ['shipping', personal.now_building],
+    ['shooting', personal.now_shooting],
+  ];
 
   const blobStyle1 = reduced ? {} : {
     transform: `translate(${(mp.x - 0.5) * 36}px, ${(mp.y - 0.5) * 36}px)`,
@@ -36,22 +56,35 @@ export function Hero({ personal }: HeroProps) {
 
       <div className={styles.grid}>
         <div className={styles.text}>
-          <div className={styles.eyebrow}>— mscs · uw–madison · &#39;25 → &#39;27 —</div>
+          {personal.hero_eyebrow && (
+            <div className={styles.eyebrow}>— {personal.hero_eyebrow} —</div>
+          )}
           <h1 className={styles.h1}>
-            <span style={reduced ? {} : { filter: 'url(#fn-edge)' }}>Avyakt</span>
-            <span className={styles.h1Italic} style={reduced ? {} : { filter: 'url(#fn-edge)' }}>Garg.</span>
+            <span style={reduced ? {} : { filter: 'url(#fn-edge)' }}>{firstName}</span>
+            {lastName && (
+              <span
+                className={styles.h1Italic}
+                style={reduced ? {} : { filter: 'url(#fn-edge)' }}
+              >
+                {lastName}.
+              </span>
+            )}
           </h1>
-          <p className={styles.lede}>
-            I build for <em>both sides of the stack</em> — distributed systems
-            that don't fall over, and ML infrastructure that actually ships.
-            <br />
-            Marketplace platforms at Uber. CUDA kernels &amp; RAG pipelines by night.
-          </p>
-          <div className={styles.pills}>
-            <span className={`${styles.pill} ${styles.pillSwe}`}>software engineer</span>
-            <span className={`${styles.pill} ${styles.pillMl}`}>ml / ai infra</span>
-            <span className={`${styles.pill} ${styles.pillOpen}`}>open to &#39;26 internships</span>
-          </div>
+          {personal.hero_lede && (
+            <p className={styles.lede}>{richText(personal.hero_lede)}</p>
+          )}
+          {pills.length > 0 && (
+            <div className={styles.pills}>
+              {pills.map((label, i) => (
+                <span
+                  key={label}
+                  className={`${styles.pill} ${PILL_CLASSES[i] ?? styles.pillOpen}`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
           <div className={styles.ctaRow}>
             <MagneticCta primary href="#chat">Talk to my AI →</MagneticCta>
             <MagneticCta href="#work">See the work</MagneticCta>
@@ -61,13 +94,16 @@ export function Hero({ personal }: HeroProps) {
         <aside className={styles.meta}>
           <div className={styles.portrait} style={reduced ? {} : { filter: 'url(#fn-edge)' }}>
             <div className={styles.portraitStripes} />
-            <div className={styles.portraitCap}>[ portrait — 35mm, Madison &apos;26 ]</div>
+            {personal.portrait_caption && (
+              <div className={styles.portraitCap}>[ {personal.portrait_caption} ]</div>
+            )}
           </div>
           <div className={styles.metaList}>
-            <div><span>now</span> Madison, WI</div>
-            <div><span>reading</span> Designing Data-Intensive Apps</div>
-            <div><span>shipping</span> IVF-PQ kernel v0.3</div>
-            <div><span>shooting</span> Fuji X-T4 · Pentax K1000</div>
+            {meta
+              .filter(([, value]) => value)
+              .map(([label, value]) => (
+                <div key={label}><span>{label}</span> {value}</div>
+              ))}
           </div>
         </aside>
       </div>

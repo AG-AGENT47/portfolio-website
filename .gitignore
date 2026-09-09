@@ -35,3 +35,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright screenshot output (regenerate: node scripts/shoot.mjs)
+/design/shots/
+
+# Vendored-skill build artifacts
+.claude/skills/**/__pycache__/
+.claude/skills/**/*.pyc
+.claude/skills/**/.coverage

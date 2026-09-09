@@ -50,9 +50,17 @@
 }
 .chatDot {
   width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(244,236,223,0.4);
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.chatDotLive {
   background: #4ade80;
   box-shadow: 0 0 8px rgba(74,222,128,0.6);
-  flex-shrink: 0;
+}
+.chatDotDown {
+  background: var(--rust);
+  box-shadow: 0 0 8px rgba(179,74,31,0.5);
 }
 .chatMeta { margin-left: auto; opacity: 0.5; }
 
@@ -206,4 +214,20 @@
   .wrap { grid-template-columns: 1fr; }
   .api { display: none; }
   .log { height: 240px; }
+}
+
+/* Keyframes must be declared in-module for CSS Modules to resolve the
+   `animation:` references above (see Hero.module.css note). */
+@keyframes fn-bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40%         { transform: translateY(-4px); opacity: 1; }
+}
+@keyframes fn-pulse {
+  0%   { box-shadow: 0 0 0 0    rgba(45, 135, 85, 0.6); }
+  100% { box-shadow: 0 0 0 10px rgba(45, 135, 85, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking span,
+  .apiDot.live { animation: none; }
 }

@@ -86,3 +86,14 @@
   .links { display: none; }
   .burger { display: flex; }
 }
+
+/* Keyframe must be declared in-module for CSS Modules to resolve the
+   `animation:` reference above (see Hero.module.css note). */
+@keyframes fn-nav-pop {
+  from { transform: translateX(-50%) scale(0); }
+  to   { transform: translateX(-50%) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill { animation: none; }
+}

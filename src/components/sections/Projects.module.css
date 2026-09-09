@@ -146,3 +146,20 @@
   }
   .accordionBody p { color: rgba(244,236,223,0.8); font-size: 14px; margin: 12px 0 16px; }
 }
+
+/* Keyframes must be declared in-module for CSS Modules to resolve the
+   `animation:` references above (see Hero.module.css note). */
+@keyframes fn-drift {
+  0%,100% { transform: translate(0,0) rotate(0); }
+  33%     { transform: translate(8%,-6%) rotate(40deg); }
+  66%     { transform: translate(-6%,8%) rotate(-30deg); }
+}
+@keyframes fn-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailBlob { animation: none; }
+  .detailContent, .accordionBody { animation: none; }
+}

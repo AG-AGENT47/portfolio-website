@@ -19,7 +19,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Anchor jumps land below the fixed nav instead of under it. */
+  scroll-padding-top: calc(var(--nav-h) + 24px);
+}
 
 body {
   background: var(--paper);
@@ -40,6 +44,7 @@ a { color: inherit; }
 .fn-section {
   position: relative;
   padding: 140px 0 200px;
+  scroll-margin-top: calc(var(--nav-h) + 24px);
   opacity: 0;
   transition: opacity 1s ease;
 }

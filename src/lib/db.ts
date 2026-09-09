@@ -83,6 +83,17 @@ function getDevFallback(): PortfolioData {
       location: 'Madison, WI',
       bio: 'MS CS student at UW-Madison and ex-Uber SWE intern. I build at the intersection of machine learning and distributed systems — from Kafka-based notification engines at Uber to graph neural networks for clinical disease prediction.',
       tagline: 'Building at the intersection of ML and distributed systems',
+      hero_eyebrow: "mscs · uw–madison · '25 → '27",
+      hero_lede:
+        "I build for *both sides of the stack* — distributed systems that don't fall over, and ML infrastructure that actually ships.\nMarketplace platforms at Uber. CUDA kernels & RAG pipelines by night.",
+      hero_pills: "software engineer|ml / ai infra|open to '26 internships",
+      about_p2:
+        "I'm a team player you can rely on. I leave the codebase cleaner than I found it. On weekends, I am out searching for frames.",
+      now_location: 'Madison, WI',
+      now_reading: 'Designing Data-Intensive Apps',
+      now_building: 'IVF-PQ kernel v0.3',
+      now_shooting: 'Fuji X-T4 · Pentax K1000',
+      portrait_caption: "portrait — 35mm, Madison '26",
     },
     experience: [
       {

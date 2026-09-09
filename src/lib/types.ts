@@ -8,6 +8,18 @@ export interface PersonalInfo {
   bio: string;
   tagline: string;
   cv_url?: string;
+
+  // Website copy — sourced from portfolio-store `personal_info` (see seeds/personal_info.sql).
+  // All optional: the UI degrades gracefully when a key is absent.
+  hero_eyebrow?: string;
+  hero_lede?: string;          // "\n" = line break, *phrase* = emphasis
+  hero_pills?: string;         // "|"-separated
+  about_p2?: string;
+  now_location?: string;
+  now_reading?: string;
+  now_building?: string;
+  now_shooting?: string;
+  portrait_caption?: string;
 }
 
 export interface ExperienceEntry {

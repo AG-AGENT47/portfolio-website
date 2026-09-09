@@ -3,10 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Section } from '@/components/ui/Section';
 import { useApiStatus } from '@/lib/useApiStatus';
 import { streamChat } from '@/lib/api';
-import type { ChatMessage } from '@/lib/types';
+import type { ChatMessage, Project } from '@/lib/types';
 import styles from './Chat.module.css';
 
 const SUGGESTIONS = ['Tell me about Uber', "What's IVF-PQ?", 'ML or SWE?', 'Best project?'];
+
+// Shown in the sidebar when the RAG chatbot project row can't be loaded.
+const FALLBACK_STACK = ['Go', 'SSE', 'pgvector', 'Voyage AI', 'Groq', 'Neon'];
 
 interface Message {
   who: 'ai' | 'me';
@@ -14,8 +17,10 @@ interface Message {
   streaming?: boolean;
 }
 
-export function Chat() {
+export function Chat({ project }: { project?: Project | null }) {
   const s = useApiStatus();
+  const stack = project?.tech_stack?.length ? project.tech_stack : FALLBACK_STACK;
+  const metaLine = stack.slice(0, 4).map((t) => t.toLowerCase()).join(' · ');
   const [msgs, setMsgs] = useState<Message[]>([
     { who: 'ai', text: "Hi — I'm Avyakt's AI twin. Ask me about his work, projects, or how he thinks." },
   ]);
@@ -93,9 +98,9 @@ export function Chat() {
       <div className={styles.wrap}>
         <div className={styles.chat}>
           <div className={styles.chatHead}>
-            <span className={styles.chatDot} />
+            <span className={`${styles.chatDot}${s.live ? ` ${styles.chatDotLive}` : ` ${styles.chatDotDown}`}`} />
             <span>chat.avyakt.dev</span>
-            <span className={styles.chatMeta}>go · sse · pgvector · groq</span>
+            <span className={styles.chatMeta}>{metaLine}</span>
           </div>
 
           <div className={styles.log} ref={logRef}>
@@ -163,10 +168,9 @@ export function Chat() {
           </div>
 
           <ul className={styles.techList}>
-            <li>3-repo Go service</li>
-            <li>SSE streaming</li>
-            <li>pgvector + Voyage AI</li>
-            <li>HyDE retrieval · Groq LLM</li>
+            {stack.slice(0, 6).map((t) => (
+              <li key={t}>{t}</li>
+            ))}
           </ul>
         </aside>
       </div>

@@ -165,3 +165,26 @@
   .h1 { font-size: clamp(60px, 14vw, 100px); margin-bottom: 28px; }
   .lede { font-size: 18px; }
 }
+
+/* ---- Keyframes ----
+   Defined locally: CSS Modules scopes @keyframes names and only resolves
+   `animation: <name>` references to keyframes declared in the SAME module.
+   A bare reference to a keyframe living in globals.css silently resolves to
+   nothing, which left every element below stuck at opacity: 0. */
+@keyframes fn-rise {
+  to { opacity: 1; transform: none; }
+}
+@keyframes fn-pulse-green {
+  0%   { box-shadow: 0 0 0 0   rgba(74, 222, 128, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+}
+
+/* ---- Reduced motion: never leave hero content hidden ---- */
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow, .h1, .lede, .pills, .ctaRow, .portrait, .metaList {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .pillOpen::before { animation: none; }
+}
