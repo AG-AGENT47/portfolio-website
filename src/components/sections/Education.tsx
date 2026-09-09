@@ -15,6 +15,7 @@ export function Education({ education, achievements }: EducationProps) {
       title={<>Two degrees,<br /><em>and counting.</em></>}
       tideColor="#1f1812"
       tideColor2="#3a2e25"
+      collapsible
     >
       <div className={styles.edu}>
         {education.map((e) => (

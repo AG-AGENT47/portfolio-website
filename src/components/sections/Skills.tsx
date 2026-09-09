@@ -19,6 +19,7 @@ export function Skills({ skills }: { skills: SkillsByCategory }) {
       id="skills"
       label="iv. stack"
       title={<>The tools<br /><em>on my desk.</em></>}
+      collapsible
     >
       <div className={styles.grid}>
         {categories.map((cat) => (

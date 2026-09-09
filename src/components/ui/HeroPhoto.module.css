@@ -1,0 +1,122 @@
+/* Mirrors the old .portrait placeholder in Hero.module.css, plus the gallery
+   affordances. Keyframes are redefined locally: CSS Modules only resolve
+   `animation: <name>` to @keyframes declared in the same module. */
+
+.placeholder,
+.trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  aspect-ratio: 4 / 5;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--paper-2) 0%, #d9c8a8 100%);
+  box-shadow: 0 30px 60px -20px rgba(31, 24, 18, 0.3);
+  opacity: 0;
+  animation: hp-rise 0.9s 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.trigger {
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trigger:hover { transform: translateY(-3px); }
+.trigger:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+
+.img { object-fit: cover; }
+
+.stripes {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(31, 24, 18, 0.05) 0, rgba(31, 24, 18, 0.05) 1px,
+    transparent 1px, transparent 16px
+  );
+}
+
+/* Legibility scrim for the caption when it sits over a photo. */
+.trigger::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 45%;
+  background: linear-gradient(to top, rgba(18, 13, 9, 0.55), transparent);
+  pointer-events: none;
+}
+
+.cap {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  right: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+  z-index: 2;
+}
+.trigger .cap { color: rgba(244, 236, 223, 0.92); }
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: rgba(244, 236, 223, 0.82);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  padding: 5px 9px;
+  border-radius: 999px;
+}
+
+.hint {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--paper);
+  background: var(--rust);
+  padding: 6px 10px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.trigger:hover .hint,
+.trigger:focus-visible .hint {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes hp-rise {
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 879px) {
+  /* On phones the hero grid is one column and this is real content, not a
+     placeholder — let it breathe but don't let a 4:5 crop eat the screen. */
+  .placeholder,
+  .trigger { aspect-ratio: 4 / 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholder,
+  .trigger { animation: none; opacity: 1; }
+  .trigger:hover { transform: none; }
+  .hint { transition: opacity 0.18s ease; transform: none; }
+}

@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { MagneticCta } from '@/components/ui/MagneticCta';
+import { HeroPhoto } from '@/components/ui/HeroPhoto';
 import { Tide } from '@/components/ui/Tide';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 import { richText, splitList } from '@/lib/richText';
+import { PHOTOS } from '@/lib/photos';
 import type { PersonalInfo } from '@/lib/types';
 import styles from './Hero.module.css';
 
@@ -92,12 +94,7 @@ export function Hero({ personal }: HeroProps) {
         </div>
 
         <aside className={styles.meta}>
-          <div className={styles.portrait} style={reduced ? {} : { filter: 'url(#fn-edge)' }}>
-            <div className={styles.portraitStripes} />
-            {personal.portrait_caption && (
-              <div className={styles.portraitCap}>[ {personal.portrait_caption} ]</div>
-            )}
-          </div>
+          <HeroPhoto photos={PHOTOS} fallbackCaption={personal.portrait_caption} />
           <div className={styles.metaList}>
             {meta
               .filter(([, value]) => value)

@@ -43,6 +43,7 @@ export function Projects({ projects }: { projects: Project[] }) {
       label="iii. projects"
       title={<>Things I&apos;ve shipped,<br /><em>or am shipping now.</em></>}
       dark
+      collapsible
     >
       <div className={styles.layout}>
         <ol className={styles.list}>
