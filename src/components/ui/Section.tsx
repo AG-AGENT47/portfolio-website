@@ -38,12 +38,17 @@ export function Section({ id, label, title, children, dark = false, tide = true,
 
   return (
     <section ref={ref} id={id} className={`fn-section${vis ? ' vis' : ''}${dark ? ' dark' : ''}`}>
+      {/* Crest at the section's own top edge, so anchor-jumping to a section
+          lands you on its wave breaking into the content — not on the trailing
+          wave of the section above. Always the default sand tone: this wave
+          washes IN, the per-section colour belongs to the wave washing OUT. */}
+      {tide && <Tide flip offset={offset} />}
       <div className="fn-section-inner">
         <div className="fn-section-label">{label}</div>
         <h2 className="fn-section-title">{title}</h2>
         {children}
       </div>
-      {tide && <Tide color={tideColor} color2={tideColor2} offset={offset} />}
+      {tide && <Tide color={tideColor} color2={tideColor2} offset={offset + 0.5} />}
     </section>
   );
 }

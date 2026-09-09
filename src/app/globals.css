@@ -85,18 +85,18 @@ a { color: inherit; }
 .fn-section .fn-section-title,
 .fn-section .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(14px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .fn-section.vis .fn-section-label {
-  transition-delay: 0.05s; opacity: 1; transform: none;
+  transition-delay: 0.02s; opacity: 1; transform: none;
 }
 .fn-section.vis .fn-section-title {
-  transition-delay: 0.18s; opacity: 1; transform: none;
+  transition-delay: 0.09s; opacity: 1; transform: none;
 }
 .fn-section.vis .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
-  transition-delay: 0.32s;
+  transition-delay: 0.16s;
   opacity: 1;
   transform: none;
 }
