@@ -13,10 +13,19 @@ interface SectionProps {
   tideColor2?: string;
 }
 
+// Deterministic 0–1 offset derived from the section id, so the tide wave starts
+// at a stable phase per section and server/client render identical markup
+// (Math.random() here caused a hydration mismatch on every load).
+function hashOffset(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return (Math.abs(h) % 997) / 997;
+}
+
 export function Section({ id, label, title, children, dark = false, tide = true, tideColor, tideColor2 }: SectionProps) {
   const ref = useRef<HTMLElement>(null);
   const [vis, setVis] = useState(false);
-  const offset = useMemo(() => Math.random(), []);
+  const offset = useMemo(() => hashOffset(id), [id]);
 
   useEffect(() => {
     const obs = new IntersectionObserver(

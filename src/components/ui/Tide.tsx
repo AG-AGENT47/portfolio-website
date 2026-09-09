@@ -1,19 +1,24 @@
 'use client';
 import { useTide } from './TideContext';
 
+// Round to 2dp: SVG needs no more precision at this scale, it keeps the markup
+// small, and — importantly — it stops Math.sin()'s last-ULP differences between
+// the Node SSR pass and the browser from tripping a hydration mismatch.
+const r = (n: number) => Math.round(n * 100) / 100;
+
 function tidePath(p: number, amp: number, freq: number, w: number, h: number): string {
   const pts: [number, number][] = [];
   for (let i = 0; i <= 32; i++) {
     const x = (i / 32) * w;
     const phase = (i / 32) * Math.PI * 2 * freq + p * Math.PI * 2;
     const y = h / 2 + Math.sin(phase) * amp * (0.6 + p * 0.4);
-    pts.push([x, y]);
+    pts.push([r(x), r(y)]);
   }
   let d = `M0,${h} L0,${pts[0][1]}`;
   for (let i = 1; i < pts.length; i++) {
     const [x, y] = pts[i];
     const [px, py] = pts[i - 1];
-    d += ` Q${(px + x) / 2},${py} ${x},${y}`;
+    d += ` Q${r((px + x) / 2)},${py} ${x},${y}`;
   }
   d += ` L${w},${h} Z`;
   return d;
