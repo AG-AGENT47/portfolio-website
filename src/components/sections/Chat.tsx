@@ -9,7 +9,19 @@ import styles from './Chat.module.css';
 const SUGGESTIONS = ['Tell me about Uber', "What's IVF-PQ?", 'ML or SWE?', 'Best project?'];
 
 // Shown in the sidebar when the RAG chatbot project row can't be loaded.
-const FALLBACK_STACK = ['Go', 'SSE', 'pgvector', 'Voyage AI', 'Groq', 'Neon'];
+const FALLBACK_STACK = ['Go', 'SSE', 'pgvector', 'Gemini', 'Groq', 'Neon'];
+
+// The backend prompt asks the model for plain prose, but models occasionally slip
+// in a stray **bold** or a leading "- ". Strip the common markers so the bubble
+// never shows raw markdown. (Full markdown rendering is deliberately out of scope
+// — a chat reply is meant to be one or two plain sentences.)
+function cleanText(raw: string): string {
+  return raw
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[-*]\s+/gm, '• ');
+}
 
 interface Message {
   who: 'ai' | 'me';
@@ -108,7 +120,7 @@ export function Chat({ project }: { project?: Project | null }) {
           <div className={styles.log} ref={logRef}>
             {msgs.map((m, i) => (
               <div key={i} className={`${styles.msg} ${m.who === 'ai' ? styles.ai : styles.me}`}>
-                {m.text}
+                {m.who === 'ai' ? cleanText(m.text) : m.text}
                 {m.streaming && m.text === '' && (
                   <span className={styles.thinking}>
                     <span /><span /><span />
@@ -165,7 +177,7 @@ export function Chat({ project }: { project?: Project | null }) {
           <div className={styles.stats}>
             <div><label>latency</label><b>{s.latency}<span>ms</span></b></div>
             <div><label>uptime</label><b>{s.uptime.toFixed(2)}<span>%</span></b></div>
-            <div><label>region</label><b>us-east-1</b></div>
+            <div><label>region</label><b>oregon</b></div>
             <div><label>provider</label><b>Render</b></div>
           </div>
 
