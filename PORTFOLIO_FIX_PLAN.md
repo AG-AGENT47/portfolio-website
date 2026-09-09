@@ -12,7 +12,32 @@ This document is the pick-up point. It captures **what the 3-repo system actuall
   - **Hardcoded copy → DB** — `Hero` (name split, eyebrow, lede, pills, portrait caption, now/reading/shipping/shooting) and `About` (2nd paragraph) now read from `personal_info`. New keys in `portfolio-store/seeds/personal_info.sql`: `hero_eyebrow, hero_lede, hero_pills, about_p2, now_location, now_reading, now_building, now_shooting, portrait_caption`. New `src/lib/richText.tsx` handles `\n` + `*emphasis*` from the DB (no raw HTML stored).
   - **Chat sidebar** — tech list + meta line now derive from the RAG chatbot's `projects.tech_stack` row (passed from `page.tsx`). Removed the false **"HyDE retrieval"** claim (also fixed in `portfolio-store/migrations/004`). `chat.avyakt.dev` status dot now reflects real API state instead of always-green.
   - Build green; verified via Playwright screenshots in `portfolio-website/design/shots/`.
-- Still open: everything else below (chatbot SSE contract, embedder swap, robustness, backend).
+- **2026-09-09 — Backend pass 1 (code done, DB step pending):**
+  - **Diagnosed the outage.** Live `/chat` returns `{"error":"Service temporarily unavailable"}`; running the service locally against the real keys shows the exact cause in the log: `pipeline: embed: embedder: rate limited: {"detail":"You have not yet added your payment method ... reduced rate limits of 3 RPM ..."}`. **Voyage voyage-3-lite free tier = 3 requests/minute**, and the prod key now fails outright. Confirms §2: the embedder is the bottleneck, not the vector DB.
+  - **C1/C2 (frontend SSE) fixed** — `api.ts` now parses the real contract (`token` / `done`+`id` / `error` / 429), surfaces errors instead of an empty bubble, drops the seed greeting from `history`. Committed `portfolio-website` `79f73bd`.
+  - **Embedder swapped Voyage → Gemini.** `gemini-embedding-001` @ 768-dim, `RETRIEVAL_QUERY`/`RETRIEVAL_DOCUMENT` task-type pair, reuses the existing `GEMINI_API_KEY` (verified working: `text-embedding-004` is 404 for this key, `gemini-embedding-001` returns 768 dims). `EMBED_PROVIDER` env, Voyage kept for rollback. Committed `rag-chatbot` `2c7d793`.
+  - **portfolio-store**: `embed.py` → Gemini via stdlib `urllib` (drops the `voyageai` dep); `migrations/005_gemini_embeddings.sql` (drop the dead ivfflat index, `VECTOR(512)` → `VECTOR(768)`); `seeds/knowledge_base.sql` regenerated — 46 chunks, 768-dim, **verified**. Committed `feat/website-content-keys` `14a889a`.
+  - **BLOCKED — needs the owner to run one DB step** (writing to the live Neon DB is not auto-approved):
+    ```bash
+    export NEON_DATABASE_URL="postgres://…"   # from rag-chatbot/.env
+    cd portfolio-store
+    psql "$NEON_DATABASE_URL" -f migrations/005_gemini_embeddings.sql
+    psql "$NEON_DATABASE_URL" -f seeds/knowledge_base.sql
+    psql "$NEON_DATABASE_URL" -c "SELECT count(*), vector_dims(embedding) FROM knowledge_base GROUP BY 2;"  # expect 46 | 768
+    ```
+    Until this runs, the new 768-dim query vectors don't match the stored 512-dim ones and every retrieval errors. After it runs: deploy `rag-chatbot` (set `EMBED_PROVIDER=gemini` + `GEMINI_API_KEY` in the Render dashboard), then test end-to-end.
+- **2026-09-09 — Backend pass 2: chatbot WORKING end-to-end (local).** Owner ran migration 005 + re-seed → Neon `knowledge_base` now `46 rows | 768 dims`.
+  - Hit a second dead model: Groq **removed `llama-3.3-70b-versatile`** (and every Llama chat model) from this account — `/chat` 404'd at the LLM step. Fixed: `GROQ_MODEL` env, default `openai/gpt-oss-120b` (present, free, OpenAI-compatible streaming). Committed `rag-chatbot` `7605757`.
+  - **Retrieval verified good.** Local server (`EMBED_PROVIDER=gemini`, `openai/gpt-oss-120b`) answered "What did Avyakt do at Uber?", the IVF-PQ project, "GPU/CUDA experience?", a multi-turn "what tech did he use there?" (pronoun resolution working), and "top achievements" — every answer accurately grounded in the retrieved chunks. Off-topic ("capital of France") correctly redirected by the topic filter.
+  - **Frontend E2E via Playwright** against the local backend: chat streams token-by-token into the real UI, the health pill shows `operational / 3ms / 100%`, the `chat.avyakt.dev` dot is green. C1/C2 confirmed fixed.
+  - **M1 fixed** — the tide hydration mismatch (`Math.random()` in `Section` render + `Math.sin` ULP diffs). Committed `portfolio-website` `da66be0`. 0 hydration errors now.
+  - **New findings from the E2E:**
+    - **N1 (medium):** chat bubbles render the LLM's markdown as literal text (`**bold**`, `- bullet`). Either parse markdown in the bubble or add "reply in plain prose, no markdown" + a length cap (~120 words) to the system prompt (`pipeline.go`).
+    - **N2 (low):** a bare "hi" gets the rigid topic-filter redirect line, not a warm greeting — system-prompt rule #2 is too absolute for greetings.
+    - **N3 (low):** chat sidebar still shows `region us-east-1` (hardcoded; Render free tier is Oregon) — drop it or make it accurate.
+- **Branches (nothing pushed):** `portfolio-website` → `fix/frontend-hero-and-db-content` (5 commits) · `portfolio-store` → `feat/website-content-keys` (2) · `rag-chatbot` → `fix/backend-rag-pipeline` (3).
+- **To ship the chatbot fix:** deploy `rag-chatbot` from its branch and set in the Render dashboard: `EMBED_PROVIDER=gemini`, `GEMINI_API_KEY=<the AI Studio key>`. `GROQ_MODEL` optional. `VOYAGE_API_KEY` no longer needed.
+- Still open: N1–N3, robustness (M5 ctx-cancel on interaction logging, M7 topic-filter uses `chunks[0]` not best vector distance, M2/M3 health-UI states), ratings UI (M9), §4.5 design direction, deploy the website to Vercel.
 
 ### Skills installed (`portfolio-website/.claude/skills/`)
 
