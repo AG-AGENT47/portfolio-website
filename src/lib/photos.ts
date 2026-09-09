@@ -21,6 +21,8 @@ export interface Photo {
   meta?: string;
 }
 
+const PLACEHOLDER_ALT = 'Placeholder image — a random landscape standing in for a future photo.';
+
 export const PHOTOS: Photo[] = [
   {
     id: 'golden-hour-lake-wisconsin',
@@ -31,25 +33,8 @@ export const PHOTOS: Photo[] = [
     caption: 'Golden hour at Lake Wisconsin',
     meta: 'Lake Wisconsin · 2025 · placeholder',
   },
-  {
-    id: 'north-woods-trail',
-    src: '/photos/north-woods-trail.jpg',
-    alt: 'Placeholder image — a landscape stand-in for a future photo.',
-    caption: 'North woods, late light',
-    meta: 'placeholder',
-  },
-  {
-    id: 'isthmus-fog',
-    src: '/photos/isthmus-fog.jpg',
-    alt: 'Placeholder image — a landscape stand-in for a future photo.',
-    caption: 'Fog on the isthmus',
-    meta: 'placeholder',
-  },
-  {
-    id: 'ridgeline-dusk',
-    src: '/photos/ridgeline-dusk.jpg',
-    alt: 'Placeholder image — a landscape stand-in for a future photo.',
-    caption: 'Ridgeline at dusk',
-    meta: 'placeholder',
-  },
+  { id: 'placeholder-2', src: '/photos/placeholder-2.jpg', alt: PLACEHOLDER_ALT, caption: 'Placeholder 02', meta: 'swap me' },
+  { id: 'placeholder-3', src: '/photos/placeholder-3.jpg', alt: PLACEHOLDER_ALT, caption: 'Placeholder 03', meta: 'swap me' },
+  { id: 'placeholder-4', src: '/photos/placeholder-4.jpg', alt: PLACEHOLDER_ALT, caption: 'Placeholder 04', meta: 'swap me' },
+  { id: 'placeholder-5', src: '/photos/placeholder-5.jpg', alt: PLACEHOLDER_ALT, caption: 'Placeholder 05', meta: 'swap me' },
 ];
