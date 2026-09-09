@@ -16,6 +16,7 @@ export function Experience({ experience }: { experience: ExperienceEntry[] }) {
       title={<>Where the work<br /><em>actually happened.</em></>}
       tideColor="#1f1812"
       tideColor2="#3a2e25"
+      collapsible
     >
       <div className={styles.exp}>
         {experience.map((e) => (

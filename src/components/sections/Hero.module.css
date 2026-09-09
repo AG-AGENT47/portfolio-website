@@ -27,7 +27,9 @@
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 80px;
-  margin-top: 40px;
+  /* Cap the content column on large displays; the blob glow stays full-bleed. */
+  max-width: var(--max-w);
+  margin: 40px auto 0;
   align-items: start;
 }
 
@@ -111,30 +113,6 @@
   display: flex; flex-direction: column; gap: 24px;
 }
 
-.portrait {
-  aspect-ratio: 4/5;
-  background: linear-gradient(135deg, var(--paper-2) 0%, #d9c8a8 100%);
-  border-radius: 4px;
-  position: relative; overflow: hidden;
-  box-shadow: 0 30px 60px -20px rgba(31,24,18,0.3);
-  opacity: 0;
-  animation: fn-rise 0.9s 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
-}
-.portraitStripes {
-  position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(31,24,18,0.05) 0, rgba(31,24,18,0.05) 1px,
-    transparent 1px, transparent 16px
-  );
-}
-.portraitCap {
-  position: absolute; bottom: 14px; left: 16px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px; color: var(--ink-2);
-  letter-spacing: 0.05em;
-}
-
 .metaList {
   font-family: var(--font-mono), monospace;
   font-size: 12px;
@@ -161,7 +139,9 @@
     gap: 40px;
     margin-top: 24px;
   }
-  .meta { display: none; }
+  /* Keep the photo (real content now), drop the now/reading list. */
+  .meta { display: block; }
+  .metaList { display: none; }
   .h1 { font-size: clamp(60px, 14vw, 100px); margin-bottom: 28px; }
   .lede { font-size: 18px; }
 }
@@ -181,7 +161,7 @@
 
 /* ---- Reduced motion: never leave hero content hidden ---- */
 @media (prefers-reduced-motion: reduce) {
-  .eyebrow, .h1, .lede, .pills, .ctaRow, .portrait, .metaList {
+  .eyebrow, .h1, .lede, .pills, .ctaRow, .metaList {
     animation: none;
     opacity: 1;
     transform: none;

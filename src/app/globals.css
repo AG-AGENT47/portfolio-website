@@ -25,6 +25,16 @@ html {
   scroll-padding-top: calc(var(--nav-h) + 24px);
 }
 
+/* ---- Magnetic scrolling ----
+   Gentle: a section eases to a clean resting position once you stop, but a
+   fast flick, keyboard paging, and find-in-page are never blocked. Desktop
+   only, and off when the visitor asked for reduced motion. */
+@media (min-width: 880px) and (prefers-reduced-motion: no-preference) {
+  html { scroll-snap-type: y proximity; }
+  #top,
+  .fn-section { scroll-snap-align: start; scroll-snap-stop: normal; }
+}
+
 body {
   background: var(--paper);
   color: var(--ink);
@@ -111,6 +121,48 @@ a { color: inherit; }
   z-index: 1;
 }
 .fn-tide.flip { transform: scaleY(-1); top: -1px; bottom: auto; }
+
+/* ---- Collapsible long sections ---- */
+:root { --collapse-max: 72vh; }
+
+.fn-collapsible { position: relative; }
+.fn-collapsible.is-collapsed {
+  max-height: var(--collapse-max);
+  overflow: hidden;
+  /* alpha ramp — works the same over the light and the dark sections */
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 140px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 140px), transparent);
+}
+
+.fn-more {
+  margin-top: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--rust);
+  background: none;
+  border: 1px solid currentColor;
+  padding: 11px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.fn-more:hover { background: var(--rust); color: var(--paper); }
+.fn-section.dark .fn-more { color: var(--peach); }
+.fn-section.dark .fn-more:hover { background: var(--peach); color: var(--ink); }
+
+@media (max-width: 879px) {
+  .fn-collapsible.is-collapsed {
+    max-height: none;
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+  .fn-more { display: none; }
+}
 
 /* ---- CTA buttons ---- */
 .fn-cta {
