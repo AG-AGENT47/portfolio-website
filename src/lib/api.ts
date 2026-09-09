@@ -3,13 +3,7 @@ import type { ChatMessage } from './types';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 if (!API_URL && process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line no-console
   console.warn('[api] NEXT_PUBLIC_API_URL is not set — chat + health calls will hit this origin and 404.');
-}
-
-export function pingHealth(): void {
-  if (!API_URL) return;
-  fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(5000) }).catch(() => {});
 }
 
 export interface ChatChunk {

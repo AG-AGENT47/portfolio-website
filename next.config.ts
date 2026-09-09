@@ -1,9 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // Enables direct Neon DB access from server components on Vercel edge
-  },
+  // Neon is queried from a Node.js Server Component at build time (see
+  // src/lib/db.ts) — no edge runtime, no experimental flags needed.
   async headers() {
     return [
       {

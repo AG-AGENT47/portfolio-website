@@ -149,6 +149,7 @@ a { color: inherit; }
   flex-shrink: 0;
 }
 .fn-pill.down .fn-pill-dot { background: var(--rust); animation-name: fn-pulse-rust; }
+.fn-pill.warming .fn-pill-dot { background: var(--peach); animation-name: fn-pulse-rust; }
 .fn-pill-label { opacity: 0.5; }
 .fn-pill-state { font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
 .fn-pill-graph { width: 60px; height: 16px; color: var(--rust); flex-shrink: 0; }

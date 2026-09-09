@@ -8,6 +8,13 @@ import styles from './Chat.module.css';
 
 const SUGGESTIONS = ['Tell me about Uber', "What's IVF-PQ?", 'ML or SWE?', 'Best project?'];
 
+const API_STATE_LABEL = {
+  connecting: 'connecting',
+  waking: 'waking…',
+  live: 'operational',
+  down: 'degraded',
+} as const;
+
 // Shown in the sidebar when the RAG chatbot project row can't be loaded.
 const FALLBACK_STACK = ['Go', 'SSE', 'pgvector', 'Gemini', 'Groq', 'Neon'];
 
@@ -32,6 +39,7 @@ interface Message {
 
 export function Chat({ project }: { project?: Project | null }) {
   const s = useApiStatus();
+  const dotState = s.phase === 'live' ? 'live' : s.phase === 'down' ? 'down' : 'warming';
   const stack = project?.tech_stack?.length ? project.tech_stack : FALLBACK_STACK;
   const metaLine = stack.slice(0, 4).map((t) => t.toLowerCase()).join(' · ');
   const [msgs, setMsgs] = useState<Message[]>([
@@ -112,7 +120,15 @@ export function Chat({ project }: { project?: Project | null }) {
       <div className={styles.wrap}>
         <div className={styles.chat}>
           <div className={styles.chatHead}>
-            <span className={`${styles.chatDot}${s.live ? ` ${styles.chatDotLive}` : ` ${styles.chatDotDown}`}`} />
+            <span
+              className={`${styles.chatDot} ${
+                dotState === 'live'
+                  ? styles.chatDotLive
+                  : dotState === 'down'
+                    ? styles.chatDotDown
+                    : styles.chatDotWarming
+              }`}
+            />
             <span>chat.avyakt.dev</span>
             <span className={styles.chatMeta}>{metaLine}</span>
           </div>
@@ -150,10 +166,10 @@ export function Chat({ project }: { project?: Project | null }) {
 
         <aside className={styles.api}>
           <div className={styles.apiHead}>
-            <span className={`${styles.apiDot}${s.live ? ` ${styles.live}` : ` ${styles.down}`}`} />
+            <span className={`${styles.apiDot} ${styles[dotState]}`} />
             <code>chatbot api</code>
-            <span className={`${styles.apiState}${s.live ? ` ${styles.live}` : ` ${styles.down}`}`}>
-              {s.live ? 'operational' : 'degraded'}
+            <span className={`${styles.apiState} ${styles[dotState]}`}>
+              {API_STATE_LABEL[s.phase]}
             </span>
           </div>
 
@@ -164,19 +180,23 @@ export function Chat({ project }: { project?: Project | null }) {
                 <stop offset="100%" stopColor="#d97757" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <polygon
-              points={`0,100 ${s.history.map((v, i) => `${(i / (s.history.length - 1)) * 600},${100 - (v / 400) * 90}`).join(' ')} 600,100`}
-              fill="url(#chat-graph-fill)"
-            />
-            <polyline
-              points={s.history.map((v, i) => `${(i / (s.history.length - 1)) * 600},${100 - (v / 400) * 90}`).join(' ')}
-              fill="none" stroke="#d97757" strokeWidth="1.6"
-            />
+            {s.history.length > 1 && (
+              <>
+                <polygon
+                  points={`0,100 ${s.history.map((v, i) => `${(i / (s.history.length - 1)) * 600},${100 - (v / 400) * 90}`).join(' ')} 600,100`}
+                  fill="url(#chat-graph-fill)"
+                />
+                <polyline
+                  points={s.history.map((v, i) => `${(i / (s.history.length - 1)) * 600},${100 - (v / 400) * 90}`).join(' ')}
+                  fill="none" stroke="#d97757" strokeWidth="1.6"
+                />
+              </>
+            )}
           </svg>
 
           <div className={styles.stats}>
-            <div><label>latency</label><b>{s.latency}<span>ms</span></b></div>
-            <div><label>uptime</label><b>{s.uptime.toFixed(2)}<span>%</span></b></div>
+            <div><label>latency</label><b>{s.phase === 'live' ? s.latency : '—'}<span>ms</span></b></div>
+            <div><label>uptime</label><b>{s.history.length === 0 ? '—' : s.uptime.toFixed(2)}<span>%</span></b></div>
             <div><label>region</label><b>oregon</b></div>
             <div><label>provider</label><b>Render</b></div>
           </div>

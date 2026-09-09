@@ -12,8 +12,15 @@ const CATEGORY_LABELS: Record<Project['category'], string> = {
 };
 
 export function Projects({ projects }: { projects: Project[] }) {
+  // Desktop hover/click selects the row the detail pane shows.
   const [active, setActive] = useState(0);
-  const p = projects[active];
+  // The mobile accordion tracks its own open row (or -1 = all collapsed) so
+  // collapsing it can never feed a negative index into `projects[active]`.
+  const [openRow, setOpenRow] = useState(0);
+
+  if (projects.length === 0) return null;
+
+  const p = projects[active] ?? projects[0];
 
   return (
     <Section
@@ -64,13 +71,13 @@ export function Projects({ projects }: { projects: Project[] }) {
       {/* Mobile accordion */}
       <div className={styles.accordion}>
         {projects.map((proj, i) => (
-          <div key={proj.id} className={`${styles.accordionItem}${i === active ? ` ${styles.accordionActive}` : ''}`}>
-            <button onClick={() => setActive(active === i ? -1 : i)}>
+          <div key={proj.id} className={`${styles.accordionItem}${openRow === i ? ` ${styles.accordionActive}` : ''}`}>
+            <button onClick={() => setOpenRow(openRow === i ? -1 : i)}>
               <span className={styles.num}>0{i + 1}</span>
               <span>{proj.title}</span>
-              <span className={styles.chevron}>{active === i ? '↑' : '↓'}</span>
+              <span className={styles.chevron}>{openRow === i ? '↑' : '↓'}</span>
             </button>
-            {active === i && (
+            {openRow === i && (
               <div className={styles.accordionBody}>
                 <div className={styles.tag}>{CATEGORY_LABELS[proj.category]}</div>
                 <div className={styles.stackLine}>{proj.tech_stack.join(' · ')}</div>

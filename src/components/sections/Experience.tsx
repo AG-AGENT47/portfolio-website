@@ -3,9 +3,9 @@ import type { ExperienceEntry } from '@/lib/types';
 import styles from './Experience.module.css';
 
 function formatPeriod(e: ExperienceEntry): string {
-  const start = e.start_date;
-  const end = e.is_current ? 'present' : (e.end_date ?? '');
-  return `${start} — ${end}`;
+  if (e.is_upcoming) return `Starting ${e.start_date}`;
+  const end = e.is_current ? 'present' : (e.end_date ?? 'present');
+  return `${e.start_date} — ${end}`;
 }
 
 export function Experience({ experience }: { experience: ExperienceEntry[] }) {
@@ -22,7 +22,7 @@ export function Experience({ experience }: { experience: ExperienceEntry[] }) {
           <div key={e.id} className={styles.row}>
             <div className={styles.when}>
               {formatPeriod(e)}
-              {e.is_current && <span className={styles.upcomingBadge}>upcoming</span>}
+              {e.is_upcoming && <span className={styles.upcomingBadge}>upcoming</span>}
             </div>
             <div className={styles.body}>
               <h3>{e.company}</h3>

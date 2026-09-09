@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Instrument_Serif, IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { HealthWarmup } from '@/components/ui/HealthWarmup';
+import { ApiStatusProvider } from '@/lib/useApiStatus';
 
 const serif = Instrument_Serif({
   variable: '--font-serif',
@@ -47,8 +47,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body>
-        <HealthWarmup />
-        {children}
+        <ApiStatusProvider>
+          {children}
+        </ApiStatusProvider>
       </body>
     </html>
   );

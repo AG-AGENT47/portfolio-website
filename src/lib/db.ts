@@ -16,7 +16,9 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     sql`SELECT id, company, role, location,
                to_char(start_date, 'Mon YYYY') AS start_date,
                to_char(end_date, 'Mon YYYY') AS end_date,
-               is_current, description, bullets, display_order
+               is_current,
+               start_date > CURRENT_DATE AS is_upcoming,
+               description, bullets, display_order
         FROM experience
         ORDER BY display_order ASC`,
     sql`SELECT id, title, category, description, bullets, tech_stack,
@@ -98,12 +100,12 @@ function getDevFallback(): PortfolioData {
     experience: [
       {
         id: '1', company: 'Uber', role: 'Software Engineer Intern', location: 'Hyderabad, India',
-        start_date: 'May 2026', end_date: null, is_current: false, description: 'Upcoming Summer 2026.',
-        bullets: [], display_order: 1,
+        start_date: 'May 2026', end_date: null, is_current: false, is_upcoming: true,
+        description: 'Upcoming Summer 2026.', bullets: [], display_order: 1,
       },
       {
         id: '2', company: 'Uber', role: 'Software Engineer Intern', location: 'Hyderabad, India',
-        start_date: 'Jul 2024', end_date: 'Jun 2025', is_current: false, description: null,
+        start_date: 'Jul 2024', end_date: 'Jun 2025', is_current: false, is_upcoming: false, description: null,
         bullets: [
           'Developed a knowledge work marketplace for 5+ countries covering data annotation workflows.',
           'Implemented a rate-card system in Java SpringBoot; gRPC APIs for cross-service integration.',
@@ -115,7 +117,7 @@ function getDevFallback(): PortfolioData {
       {
         id: '3', company: 'University of Saskatchewan', role: 'Mitacs Research Intern',
         location: 'Saskatoon, SK', start_date: 'May 2023', end_date: 'Aug 2023',
-        is_current: false, description: null,
+        is_current: false, is_upcoming: false, description: null,
         bullets: [
           'Automated RFID data pipeline for a biomedical lab — saved 3,000+ manual hours/year.',
           'Revamped cattle DB with 6,600+ entries — 90% faster queries via genealogy indexing.',

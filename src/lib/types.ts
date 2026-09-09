@@ -30,6 +30,8 @@ export interface ExperienceEntry {
   start_date: string;
   end_date: string | null;
   is_current: boolean;
+  /** start_date is in the future — the role hasn't begun yet. */
+  is_upcoming: boolean;
   description: string | null;
   bullets: string[];
   display_order: number;

@@ -1,10 +1,25 @@
 # Portfolio System — Audit & Fix Plan
 
-_Last updated: 2026-09-09. Author: exploration + first fix pass by Claude Code._
+_Last updated: 2026-09-09. Author: exploration + fix passes by Claude Code._
 
 This document is the pick-up point. It captures **what the 3-repo system actually is today**, **every issue found**, the **root cause of the "only a few free chatbot responses" problem**, and a **phased fix sequence**.
 
 ### Progress log
+
+- **2026-09-09 — Session 4: pre-deploy fixes + documentation truth pass.**
+  - All three feature branches are now **merged to `main` and pushed** (`portfolio-website`, `rag-chatbot`, `portfolio-store`). The "nothing pushed" notes below are historical. Neon `knowledge_base` is migrated (46 rows / 768-dim).
+  - **H2 fixed** — `Projects.tsx` guarded: `if (projects.length === 0) return null`, desktop `p = projects[active] ?? projects[0]`, and the mobile accordion now owns its own `openRow` state (was overloading `active` with `-1` → `projects[-1]` crash).
+  - **M4 fixed** — `is_upcoming` (`start_date > CURRENT_DATE`) added to the experience query in `db.ts` + `types.ts` + dev fallback. `Experience.tsx` renders "Starting <month>" + an "upcoming" badge for the future Uber 2026 role instead of a dangling `"May 2026 — "`.
+  - **M2 + M3 fixed** — `useApiStatus.ts` → `useApiStatus.tsx`: one `ApiStatusProvider` (in `layout.tsx`) runs a single `/health` poll loop shared by the nav pill + chat sidebar (was 3 independent request streams incl. `HealthWarmup`, now deleted). New `phase` state `connecting → waking → live → down`; `waking` covers the 30–60s Render cold start (15s timeout vs 4s steady-state, no overlapping polls). Latency graph starts empty — no more seeded fake `50`s; latency/uptime show `—` until a real response. Verified all three phases render with no page errors.
+  - `next.config.ts` — removed the empty `experimental: {}` block and its false "Vercel edge" comment (the DB call is a Node RSC).
+  - **Documentation pass** — rewrote/aligned every doc to the shipped code:
+    `rag-chatbot/README.md` (was all Voyage/Llama-3.3 — now Gemini 768d embed + `openai/gpt-oss-120b`, threshold 0.75, real SSE contract, env table),
+    `rag-chatbot/CLAUDE.md` + `.gitignore` comment (dead `resume.go` ref),
+    `portfolio-store/README.md` (migrations 004/005, Gemini not Voyage, 46 chunks / 768d, no `schema.sql`),
+    `portfolio-store/CLAUDE.md` (schema block said VECTOR(512) *and* (1024); now 768, ivfflat dropped; added upcoming Uber role),
+    `portfolio-store/UPDATING.md` (new — how a DB change reaches the live site),
+    `portfolio-website/README.md` (was create-next-app boilerplate) + `CLAUDE.md` (ApiStatusProvider not HealthWarmup) + `design/README.md` (marked unimplemented).
+  - **Still open after this session:** deploy `rag-chatbot` to Render + set dashboard env (`NEON_DATABASE_URL`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `ALLOWED_ORIGINS`); deploy `portfolio-website` to Vercel (`DATABASE_URL`, `NEXT_PUBLIC_API_URL`); H3 `*.vercel.app` preview CORS (code part); M9 ratings UI; §4.5 design-direction call. **Content drift:** migration 004 still seeds the "RAG-Powered Portfolio Chatbot" project row with `Voyage AI` in `tech_stack` and a "Voyage AI embeddings / Groq Llama 3.3 70B" description — needs a `migrations/006` correction + reseed + redeploy.
 
 - **2026-09-09 — Frontend pass 1 (done):**
   - **C3** fixed — hero rendered blank; CSS-Module `animation:` rules referenced `@keyframes` defined in `globals.css`. Moved the used keyframes into `Hero/Projects/Chat/StickyNav.module.css`. Added the previously-missing `prefers-reduced-motion` fallbacks to all four.
@@ -81,14 +96,14 @@ Three separate git repos under `~/Desktop/Development_personal_website/`, each w
 | `rag-chatbot` | RAG API: `/chat` (SSE), `/rating`, `/metrics`, `/health` | Go 1.21, `chi` router, `pgx/v5` + `pgvector-go`, Voyage AI embeddings, Groq Llama 3.3 70B | Render free web service |
 | `portfolio-website` | The portfolio site + live chatbot UI + API health dashboard | **Next.js 16** (App Router, Turbopack, React 19), CSS Modules, `@neondatabase/serverless` querying Neon directly in a Server Component | Vercel |
 
-> ⚠️ The saved project memory (`memory/project_portfolio.md`) is stale: it says "React + Vite + Go backend" for the website and "Supabase" for the store. Reality is **Next.js 16** and **Neon**. Update that memory after this pass.
+> The stack is **Next.js 16** (website) and **Neon** (store) — not the "React + Vite / Supabase" some older notes mention. The saved project memory was corrected to match.
 
 ### Data flow (actual)
 
 ```
 BUILD (website):  page.tsx (RSC)  ──►  src/lib/db.ts  ──►  Neon (portfolio-store DB)  ──►  static HTML (ISR, revalidate 3600s)
-PAGE LOAD:        <HealthWarmup>   ──►  GET  {NEXT_PUBLIC_API_URL}/health   (wakes the Render dyno)
-                 useApiStatus()    ──►  GET  /health every 5s              (drives the "operational/degraded" pill + latency graph)
+PAGE LOAD:        <ApiStatusProvider> ──►  GET {NEXT_PUBLIC_API_URL}/health every 5s
+                 (first poll wakes the Render dyno; drives the connecting/waking/live/down pill + latency graph; shared by the nav pill and chat sidebar)
 CHAT:            Chat.tsx ──► streamChat() ──► POST {NEXT_PUBLIC_API_URL}/chat ──► SSE stream
                     rag-chatbot:  guardrails ─► contextualize query ─► Voyage embed ─► pgvector + FTS hybrid (RRF) ─► topic filter ─► Groq stream ─► log to `interactions`
 ```
@@ -103,6 +118,10 @@ CHAT:            Chat.tsx ──► streamChat() ──► POST {NEXT_PUBLIC_API
 ---
 
 ## 2. The "only a few free responses" problem — root cause
+
+> **Resolved (see Progress log).** The fix was §2.2 option A: query embeddings
+> moved from Voyage `voyage-3-lite` (3 RPM free) to Gemini `gemini-embedding-001`
+> @ 768-dim (~100 RPM). The analysis below is kept as the record of why.
 
 **The vector database is NOT the bottleneck.** Neon + `pgvector` has no per-request cap that matters here (10 GB storage; the whole knowledge base is ~46 rows / ~90 KB of vectors). Swapping Neon for Chroma would not buy a single extra response and would cost us persistence and co-location with the rest of the portfolio data. See §2.3 for why.
 
@@ -140,6 +159,12 @@ Neon and Render free tiers cause **cold-start latency** (see §4), not response 
 ---
 
 ## 3. Bugs — ranked
+
+> **Mostly resolved.** As of Session 4 (see Progress log): C1, C2, C3, H1, H4,
+> M1, M4, M5, M6, M7, M8, and the X-series consistency items are fixed; H2, M2,
+> M3 fixed this session. Still open: H3 (`*.vercel.app` preview CORS, code part),
+> M9 (ratings UI), plus the deploy steps in §7. This list is kept as the
+> original audit record — check the Progress log for current status of each.
 
 ### 🔴 CRITICAL — the hero renders blank (verified in a real browser)
 

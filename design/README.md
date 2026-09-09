@@ -1,5 +1,10 @@
 # CODING AGENTS: READ THIS FIRST
 
+> **Status (this repo):** this bundle is a historical reference only. The live
+> site in `src/` is its own implementation (direction C — "tide") and is **not**
+> kept in sync with these prototypes. Paths below say `personal-website/`; the
+> files actually live under `design/project/`. Nothing here is wired into the build.
+
 This is a **handoff bundle** from Claude Design (claude.ai/design).
 
 A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
