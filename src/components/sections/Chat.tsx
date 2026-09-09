@@ -15,6 +15,7 @@ interface Message {
   who: 'ai' | 'me';
   text: string;
   streaming?: boolean;
+  interactionId?: string; // from the SSE `done` event — for a future 👍/👎 on /rating
 }
 
 export function Chat({ project }: { project?: Project | null }) {
@@ -39,44 +40,45 @@ export function Chat({ project }: { project?: Project | null }) {
     setBusy(true);
     setMsgs((m) => [...m, { who: 'me', text: t }]);
 
-    const history: ChatMessage[] = msgs.map((m) => ({
+    // History = the real conversation so far, excluding the seed greeting (index 0).
+    const history: ChatMessage[] = msgs.slice(1).map((m) => ({
       role: m.who === 'me' ? 'user' : 'assistant',
       content: m.text,
     }));
 
     setMsgs((m) => [...m, { who: 'ai', text: '', streaming: true }]);
 
+    const replaceLast = (patch: Partial<Message>) =>
+      setMsgs((m) => {
+        const next = [...m];
+        next[next.length - 1] = { ...next[next.length - 1], ...patch };
+        return next;
+      });
+
     try {
       for await (const chunk of streamChat(t, history)) {
         if (chunk.rateLimited) {
-          setMsgs((m) => {
-            const last = [...m];
-            last[last.length - 1] = { who: 'ai', text: "I'm being rate-limited right now — try again in a moment." };
-            return last;
-          });
+          replaceLast({ text: "I'm getting a lot of questions right now — give me a few seconds and try again.", streaming: false });
+          break;
+        }
+        if (chunk.error) {
+          replaceLast({ text: "My backend hit a snag answering that. Try again in a moment — or just email me.", streaming: false });
           break;
         }
         if (chunk.token) {
           setMsgs((m) => {
-            const last = [...m];
-            last[last.length - 1] = { who: 'ai', text: last[last.length - 1].text + chunk.token, streaming: true };
-            return last;
+            const next = [...m];
+            const last = next[next.length - 1];
+            next[next.length - 1] = { ...last, text: last.text + chunk.token, streaming: true };
+            return next;
           });
         }
         if (chunk.done) {
-          setMsgs((m) => {
-            const last = [...m];
-            last[last.length - 1] = { ...last[last.length - 1], streaming: false };
-            return last;
-          });
+          replaceLast({ streaming: false, interactionId: chunk.id });
         }
       }
     } catch {
-      setMsgs((m) => {
-        const last = [...m];
-        last[last.length - 1] = { who: 'ai', text: 'Something went wrong — please try again.' };
-        return last;
-      });
+      replaceLast({ text: 'Something went wrong — please try again.', streaming: false });
     } finally {
       setBusy(false);
     }
