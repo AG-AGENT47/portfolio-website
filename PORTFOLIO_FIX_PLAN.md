@@ -35,9 +35,17 @@ This document is the pick-up point. It captures **what the 3-repo system actuall
     - **N1 (medium):** chat bubbles render the LLM's markdown as literal text (`**bold**`, `- bullet`). Either parse markdown in the bubble or add "reply in plain prose, no markdown" + a length cap (~120 words) to the system prompt (`pipeline.go`).
     - **N2 (low):** a bare "hi" gets the rigid topic-filter redirect line, not a warm greeting — system-prompt rule #2 is too absolute for greetings.
     - **N3 (low):** chat sidebar still shows `region us-east-1` (hardcoded; Render free tier is Oregon) — drop it or make it accurate.
-- **Branches (nothing pushed):** `portfolio-website` → `fix/frontend-hero-and-db-content` (5 commits) · `portfolio-store` → `feat/website-content-keys` (2) · `rag-chatbot` → `fix/backend-rag-pipeline` (3).
+- **2026-09-09 — Backend pass 3: retrieval re-audited + polish (done).**
+  - **Retrieval confirmed genuine, not a resume dump.** Added `logRetrieval` (`pipeline.go`) — every `/chat` logs the chunks pulled + their source label + vector distance. Ran 9 live queries against the migrated Neon DB; the log shows tightly on-topic chunks every time: Uber → 4× `uber_experience` (d 0.27–0.32); IVF-PQ → 3× `hpc_project` (d 0.32–0.34); GPU/CUDA → `cuda_skills` (d 0.24) + `hpc_project`; achievements → `gold_medal`/`mitacs`/`jstse`; multi-turn "what tech there?" contextualised to Uber; injection + off-topic both refused with the boundary line.
+  - **N1 fixed (formatting).** Rewrote `systemPromptTemplate`: plain prose, 2–4 sentences / ≤~90 words, **no markdown of any kind**. Verified via Playwright E2E — 0 raw `**`/`#`/`- ` in the rendered bubbles. Added `cleanText()` in `Chat.tsx` as a client-side safety net (strips stray `**bold**`, `__`, leading `#`, `- `).
+  - **N2 fixed.** Prompt rule #2 now explicitly allows a one-sentence warm greeting for "hi"/"hey"; the refusal line is reserved for genuinely unrelated topics. E2E: "hi" → "Hello! I'm happy to chat—feel free to ask anything about Avyakt's work…".
+  - **N3 fixed.** `Chat.tsx` sidebar `region` → `oregon` (Render's default region; `render.yaml` sets none). `FALLBACK_STACK` `Voyage AI` → `Gemini`.
+  - **M7 fixed.** Topic filter now uses the **minimum** vector distance across retrieved chunks (not `chunks[0]`, which RRF reorders; FTS-only chunks with `Distance=0` are skipped). Threshold stays `0.75` — the LLM's BOUNDARY rule is the second layer.
+  - **M5 fixed.** `handlers.go logCtx()` = `context.WithoutCancel` + 5s timeout for both `InsertInteraction` calls, so a client disconnecting mid-stream no longer drops the interaction row / rating ID.
+  - Stale docs corrected: `rag-chatbot/CLAUDE.md` (Voyage→Gemini, Llama 3.3→gpt-oss-120b, threshold 0.80→0.75, free-tier table).
+- **Branches (nothing pushed):** `portfolio-website` → `fix/frontend-hero-and-db-content` (8 commits) · `portfolio-store` → `feat/website-content-keys` (3) · `rag-chatbot` → `fix/backend-rag-pipeline` (5).
 - **To ship the chatbot fix:** deploy `rag-chatbot` from its branch and set in the Render dashboard: `EMBED_PROVIDER=gemini`, `GEMINI_API_KEY=<the AI Studio key>`. `GROQ_MODEL` optional. `VOYAGE_API_KEY` no longer needed.
-- Still open: N1–N3, robustness (M5 ctx-cancel on interaction logging, M7 topic-filter uses `chunks[0]` not best vector distance, M2/M3 health-UI states), ratings UI (M9), §4.5 design direction, deploy the website to Vercel.
+- Still open: M2/M3 health-UI "waking/unreachable" states + shared poll context, ratings UI (M9 — `interactionId` already threaded to the bubble), §4.5 design direction, deploy the website to Vercel.
 
 ### Skills installed (`portfolio-website/.claude/skills/`)
 
