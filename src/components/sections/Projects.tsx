@@ -11,6 +11,21 @@ const CATEGORY_LABELS: Record<Project['category'], string> = {
   professional: 'Professional',
 };
 
+// A live_url beginning with "#" points at a section of this same page (e.g. the
+// chat demo) — render it as an in-page link, not a new tab.
+function LiveLink({ url, className }: { url: string; className?: string }) {
+  const inPage = url.startsWith('#');
+  return (
+    <a
+      href={url}
+      className={className}
+      {...(inPage ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+    >
+      {inPage ? 'try it below →' : 'live demo →'}
+    </a>
+  );
+}
+
 export function Projects({ projects }: { projects: Project[] }) {
   // Desktop hover/click selects the row the detail pane shows.
   const [active, setActive] = useState(0);
@@ -58,11 +73,7 @@ export function Projects({ projects }: { projects: Project[] }) {
                   view on github →
                 </a>
               )}
-              {p.live_url && (
-                <a href={p.live_url} target="_blank" rel="noopener noreferrer" className={styles.cta}>
-                  live demo →
-                </a>
-              )}
+              {p.live_url && <LiveLink url={p.live_url} className={styles.cta} />}
             </div>
           </div>
         </div>
@@ -88,11 +99,7 @@ export function Projects({ projects }: { projects: Project[] }) {
                       view on github →
                     </a>
                   )}
-                  {proj.live_url && (
-                    <a href={proj.live_url} target="_blank" rel="noopener noreferrer" className={styles.cta}>
-                      live demo →
-                    </a>
-                  )}
+                  {proj.live_url && <LiveLink url={proj.live_url} className={styles.cta} />}
                 </div>
               </div>
             )}
