@@ -32,6 +32,7 @@
   position: absolute;
   top: -8px;
   right: 0;
+  z-index: 2; /* above .stage, which otherwise covers the button and eats clicks */
   width: 44px;
   height: 44px;
   display: flex;
@@ -174,7 +175,13 @@
   }
   .prev { left: 2px; }
   .next { right: 2px; }
-  .close { top: -4px; }
+  .close {
+    top: -4px;
+    right: 4px;
+    background: rgba(18, 13, 9, 0.55);
+    border-radius: 999px;
+    color: var(--paper);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
