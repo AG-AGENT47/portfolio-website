@@ -268,3 +268,15 @@ a { color: inherit; }
     margin-bottom: 48px;
   }
 }
+
+/* Fail open: without JS the scroll-reveal never fires, so show everything
+   (no-JS visitors and crawlers that don't run scripts). */
+@media (scripting: none) {
+  .fn-section,
+  .fn-section .fn-section-label,
+  .fn-section .fn-section-title,
+  .fn-section .fn-section-inner > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

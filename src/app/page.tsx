@@ -1,4 +1,5 @@
 import { getPortfolioData } from '@/lib/db';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, GITHUB_URL, LINKEDIN_URL } from '@/lib/site';
 import { TideProvider } from '@/components/ui/TideContext';
 import { FnDefs } from '@/components/ui/FnDefs';
 import { StickyNav } from '@/components/nav/StickyNav';
@@ -14,6 +15,21 @@ import { Contact } from '@/components/sections/Contact';
 
 export const revalidate = 3600;
 
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE_NAME,
+  url: SITE_URL,
+  jobTitle: 'Software Engineer',
+  description: SITE_DESCRIPTION,
+  alumniOf: [
+    { '@type': 'CollegeOrUniversity', name: 'University of Wisconsin–Madison' },
+    { '@type': 'CollegeOrUniversity', name: 'BITS Pilani' },
+  ],
+  knowsAbout: ['Distributed systems', 'Machine learning infrastructure', 'CUDA', 'Retrieval-augmented generation', 'Java', 'Go', 'Python'],
+  sameAs: [GITHUB_URL, LINKEDIN_URL],
+};
+
 export default async function Home() {
   const data = await getPortfolioData();
 
@@ -24,6 +40,10 @@ export default async function Home() {
 
   return (
     <TideProvider>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}
+      />
       <FnDefs />
       <StickyNav />
       <main>
