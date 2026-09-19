@@ -1,7 +1,7 @@
 // Single source for canonical site facts used by metadata, sitemap, robots,
 // the OG image and JSON-LD. Changing domains = set NEXT_PUBLIC_SITE_URL in Vercel.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://portfolio-website-agent-50.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://avyakt-garg.vercel.app'
 ).replace(/\/$/, '');
 
 export const SITE_NAME = 'Avyakt Garg';
