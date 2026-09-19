@@ -4,7 +4,8 @@
   border: 1px solid rgba(244,236,223,0.14);
   border-left: 3px solid var(--peach);
   padding: 14px 20px;
-  margin: 0 0 28px;
+  margin: 0 0 clamp(14px, 2.4vh, 28px);
+  flex: 0 0 auto;
   font-family: var(--font-serif), serif;
   font-size: 16px;
   font-style: italic;
@@ -29,8 +30,11 @@
 .wrap {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
-  gap: 48px;
-  align-items: start;
+  gap: clamp(24px, 3vw, 48px);
+  align-items: stretch;
+  /* Absorbs whatever height the frame has left (see Section `fill`). */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Chat box */
@@ -39,6 +43,9 @@
   border: 1px solid rgba(244,236,223,0.12);
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .chatHead {
   padding: 14px 20px;
@@ -69,8 +76,10 @@
 .chatMeta { margin-left: auto; opacity: 0.5; }
 
 .log {
-  padding: 24px;
-  height: 280px;
+  padding: clamp(16px, 2.4vh, 24px);
+  /* No fixed height: the log is the elastic part of the panel. */
+  flex: 1 1 auto;
+  min-height: 150px;
   overflow-y: auto;
   display: flex; flex-direction: column; gap: 12px;
   scroll-behavior: smooth;
@@ -146,8 +155,10 @@
 
 /* API sidebar */
 .api {
-  display: flex; flex-direction: column; gap: 18px;
-  padding: 22px;
+  display: flex; flex-direction: column; gap: clamp(10px, 1.8vh, 18px);
+  padding: clamp(16px, 2.2vh, 22px);
+  min-height: 0;
+  overflow-y: auto;
   background: rgba(244,236,223,0.04);
   border: 1px solid rgba(244,236,223,0.12);
   border-radius: 6px;
@@ -177,7 +188,8 @@
 .apiState.warming { color: var(--peach); border: 1px solid var(--peach); }
 
 .graph {
-  width: 100%; height: 80px;
+  width: 100%; height: clamp(48px, 8vh, 80px);
+  flex: 0 0 auto;
   background: rgba(244,236,223,0.04);
   border-radius: 4px;
 }
@@ -217,9 +229,10 @@
 .techList li::before { content: "→ "; color: var(--peach); }
 
 @media (max-width: 879px) {
-  .wrap { grid-template-columns: 1fr; }
+  .wrap { grid-template-columns: 1fr; display: block; }
   .api { display: none; }
-  .log { height: 240px; }
+  /* No frame to fill on a phone — go back to a fixed, comfortable log. */
+  .log { flex: 0 0 auto; height: 260px; }
 }
 
 /* Keyframes must be declared in-module for CSS Modules to resolve the

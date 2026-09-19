@@ -110,6 +110,10 @@ export function Chat({ project }: { project?: Project | null }) {
       label="vi. chat"
       title={<>Talk to me,<br /><em>via my AI twin.</em></>}
       dark
+      /* Never clamp — the composer has to stay reachable. The log flexes
+         instead, so the panel fits the frame at any viewport height. */
+      collapsible={false}
+      fill
     >
       <div className={styles.disclaimer}>
         <span className={styles.beta}>BETA</span>

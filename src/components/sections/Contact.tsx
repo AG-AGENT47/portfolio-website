@@ -9,6 +9,8 @@ export function Contact({ personal }: { personal: PersonalInfo }) {
       label="vii. fin"
       title={<>Say hello.<br /><em>I&apos;ll write back.</em></>}
       tide={false}
+      collapsible={false}
+      fill
     >
       <div className={styles.contact}>
         <a href={`mailto:${personal.email}`} className={styles.mail}>

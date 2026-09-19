@@ -15,24 +15,45 @@
   --nav-h: 64px;
   --section-px: 56px;
   --max-w: 1280px;
+
+  /* Height of the tide wave that closes every section. The section's bottom
+     padding is derived from it, so content never collides with the water. */
+  --tide-h: clamp(72px, 10vh, 132px);
+  /* Breathing room between the fixed nav and a section's label. */
+  --section-top: clamp(28px, 5vh, 64px);
+  --section-bottom: clamp(24px, 4vh, 56px);
+
+  /* One shared easing so every transition on the page feels like one hand. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   scroll-behavior: smooth;
-  /* Anchor jumps land below the fixed nav instead of under it. */
-  scroll-padding-top: calc(var(--nav-h) + 24px);
+  /* Zero, deliberately. Nav clearance lives INSIDE each section's own top
+     padding instead, so the snap position and the section's top edge are the
+     same line. With a scroll-padding here, every magnetic stop parked the
+     previous section's last 88px — i.e. its wave — at the top of the screen
+     and then cut the current section off mid-body. */
+  scroll-padding-top: 0;
 }
 
 /* ---- Magnetic scrolling ----
-   Gentle: a section eases to a clean resting position once you stop, but a
-   fast flick, keyboard paging, and find-in-page are never blocked. Desktop
-   only, and off when the visitor asked for reduced motion. */
+   One stop = one section, framed: label and title just under the nav, the
+   tide wave sitting on the bottom edge. Sections are a viewport tall and
+   clamp their own overflow (see .fn-section-body), so the frame holds.
+   Gentle `proximity` snapping: a fast flick, keyboard paging and
+   find-in-page are never blocked. Desktop only, and off under reduced
+   motion. */
 @media (min-width: 880px) and (prefers-reduced-motion: no-preference) {
   html { scroll-snap-type: y proximity; }
   #top,
-  .fn-section { scroll-snap-align: start; scroll-snap-stop: normal; }
+  .fn-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
 }
 
 body {
@@ -53,10 +74,16 @@ a { color: inherit; }
 /* ---- Section wrapper ---- */
 .fn-section {
   position: relative;
-  padding: 140px 0 200px;
-  scroll-margin-top: calc(var(--nav-h) + 24px);
+  /* Nav clearance at the top, wave clearance at the bottom — both baked in,
+     so the section box IS the magnetic frame. */
+  padding: calc(var(--nav-h) + var(--section-top)) 0
+           calc(var(--tide-h) + var(--section-bottom));
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: 0;
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 0.9s var(--ease-soft);
 }
 .fn-section.vis { opacity: 1; }
 .fn-section.dark { background: var(--ink); color: var(--paper); }
@@ -66,8 +93,30 @@ a { color: inherit; }
 .fn-section-inner {
   padding: 0 var(--section-px);
   max-width: var(--max-w);
+  width: 100%;
   margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
+
+.fn-section-head { flex: 0 0 auto; }
+.fn-section-body { flex: 0 1 auto; min-height: 0; }
+/* Stretch to the frame and hand the leftover height down to the content. */
+.fn-section-body.is-fill {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+/* A fill section is pinned to exactly one viewport — min-height alone would
+   let the content push the box taller, which is what the flex chain below is
+   there to prevent. Desktop only; a phone just flows. */
+@media (min-width: 880px) {
+  .fn-section.fill { height: 100svh; }
+}
+/* No wave below → no wave clearance to reserve. */
+.fn-section.no-tide { padding-bottom: var(--section-bottom); }
 
 .fn-section-label {
   font-family: var(--font-mono), monospace;
@@ -81,10 +130,12 @@ a { color: inherit; }
 .fn-section-title {
   font-family: var(--font-serif), serif;
   font-weight: 400;
-  font-size: clamp(48px, 7vw, 110px);
+  /* Height-aware as well as width-aware: on a short laptop screen the title
+     must not eat the room the body needs to finish above the wave. */
+  font-size: clamp(40px, min(6.6vw, 10.5vh), 104px);
   line-height: 0.96;
   letter-spacing: -0.035em;
-  margin: 0 0 80px;
+  margin: 0 0 clamp(28px, 5.5vh, 72px);
   max-width: 1100px;
 }
 .fn-section-title em { font-style: italic; color: var(--rust-deep); }
@@ -93,49 +144,105 @@ a { color: inherit; }
 /* ---- Scroll-stagger animation ---- */
 .fn-section .fn-section-label,
 .fn-section .fn-section-title,
-.fn-section .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
+.fn-section .fn-section-body,
+.fn-section .fn-more {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(18px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
 }
 .fn-section.vis .fn-section-label {
-  transition-delay: 0.02s; opacity: 1; transform: none;
+  transition-delay: 0.04s; opacity: 1; transform: none;
 }
 .fn-section.vis .fn-section-title {
-  transition-delay: 0.09s; opacity: 1; transform: none;
+  transition-delay: 0.12s; opacity: 1; transform: none;
 }
-.fn-section.vis .fn-section-inner > *:not(.fn-section-label):not(.fn-section-title) {
-  transition-delay: 0.16s;
-  opacity: 1;
-  transform: none;
+.fn-section.vis .fn-section-body {
+  transition-delay: 0.22s; opacity: 1; transform: none;
+}
+.fn-section.vis .fn-more {
+  transition-delay: 0.3s; opacity: 1; transform: none;
 }
 
-/* ---- Tide SVG ---- */
+/* ---- Tide SVG ----
+   The wrapper is the window; the SVG inside is three tiles wide and slides
+   through it. `overflow: hidden` is what makes the loop invisible. */
 .fn-tide {
   position: absolute;
   bottom: -1px; left: 0; right: 0;
-  width: 100%; height: 100px;
+  width: 100%;
+  height: var(--tide-h);
+  overflow: hidden;
   pointer-events: none;
-  display: block;
+  line-height: 0;
   z-index: 1;
+}
+.fn-tide svg {
+  position: absolute;
+  bottom: 0; left: 0;
+  /* Three tiles across the window: one on screen, two in reserve for the
+     drift, so no edge ever swims into view. `max-width: none` overrides the
+     global svg reset, which otherwise squeezes all three tiles into one
+     screen width and shreds the wave into ripples. */
+  width: 300%;
+  max-width: none;
+  height: 100%;
+  display: block;
+  /* Hint the compositor: these layers only ever translate. */
+  will-change: transform;
 }
 .fn-tide.flip { transform: scaleY(-1); top: -1px; bottom: auto; }
 
-/* ---- Collapsible long sections ---- */
-:root { --collapse-max: 72vh; }
+.fn-tide-drift {
+  animation-name: fn-tide-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.fn-tide-drift.rev { animation-name: fn-tide-drift-rev; }
 
-.fn-collapsible { position: relative; }
-.fn-collapsible.is-collapsed {
-  max-height: var(--collapse-max);
+.fn-tide-swell {
+  animation-name: fn-tide-swell;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* One tile is 1440 user units. Sliding by exactly that lands the wave back
+   on an identical crest, so the loop has no visible reset. */
+@keyframes fn-tide-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-1440px); }
+}
+@keyframes fn-tide-drift-rev {
+  from { transform: translateX(-1440px); }
+  to   { transform: translateX(0); }
+}
+@keyframes fn-tide-swell {
+  0%, 100% { transform: translateY(var(--lift)); }
+  50%      { transform: translateY(calc(var(--lift) * -1)); }
+}
+
+/* ---- One-viewport clamp ----
+   Sections longer than a screen hide the overflow behind an alpha ramp and
+   a `more` toggle, so the magnetic stop still frames title-to-wave. The
+   max-height itself is set inline from measured geometry (Section.tsx). */
+/* Same specificity as the scroll-stagger rule above, which would otherwise
+   win and drop max-height from the transition list — leaving `more` to snap
+   the body open in a single frame. */
+.fn-section .fn-section-body {
+  transition: opacity 0.7s var(--ease-out),
+              transform 0.7s var(--ease-out),
+              max-height 0.6s var(--ease-out);
+}
+.fn-section-body.is-collapsed {
   overflow: hidden;
   /* alpha ramp — works the same over the light and the dark sections */
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 140px), transparent);
-          mask-image: linear-gradient(to bottom, #000 calc(100% - 140px), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent);
 }
 
 .fn-more {
-  margin-top: 32px;
+  margin-top: clamp(16px, 2.6vh, 32px);
+  align-self: flex-start;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -149,15 +256,17 @@ a { color: inherit; }
   padding: 11px 20px;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.25s var(--ease-soft), color 0.25s var(--ease-soft),
+              transform 0.25s var(--ease-out);
 }
-.fn-more:hover { background: var(--rust); color: var(--paper); }
+.fn-more:hover { background: var(--rust); color: var(--paper); transform: translateY(-2px); }
 .fn-section.dark .fn-more { color: var(--peach); }
 .fn-section.dark .fn-more:hover { background: var(--peach); color: var(--ink); }
 
 @media (max-width: 879px) {
-  .fn-collapsible.is-collapsed {
-    max-height: none;
+  /* Phones never clamp — scrolling is the affordance there. */
+  .fn-section-body.is-collapsed {
+    max-height: none !important;
     -webkit-mask-image: none;
             mask-image: none;
   }
@@ -251,21 +360,42 @@ a { color: inherit; }
   .fn-section,
   .fn-section .fn-section-label,
   .fn-section .fn-section-title,
-  .fn-section .fn-section-inner > * {
+  .fn-section .fn-section-body,
+  .fn-section .fn-more {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
   }
-  .fn-tide { display: none; }
+  /* The wave is structure, not decoration — keep it, just hold it still. */
+  .fn-tide-drift,
+  .fn-tide-swell { animation: none !important; transform: none !important; }
 }
 
 /* ---- Mobile base overrides ---- */
 @media (max-width: 879px) {
-  :root { --section-px: 24px; }
-  .fn-section { padding: 80px 0 120px; }
+  :root {
+    --section-px: 24px;
+    --tide-h: clamp(56px, 8vh, 88px);
+  }
+  /* No snapping here, so no need to pin a section to the viewport: let it be
+     exactly as tall as its content plus breathing room. */
+  .fn-section {
+    min-height: 0;
+    padding: calc(var(--nav-h) + 32px) 0 calc(var(--tide-h) + 40px);
+  }
   .fn-section-title {
     font-size: clamp(36px, 10vw, 72px);
-    margin-bottom: 48px;
+    margin-bottom: 40px;
+  }
+}
+
+/* Short landscape screens (a laptop at 1280×720, a phone turned sideways):
+   trim the chrome hard so the title-to-wave frame still fits. */
+@media (min-width: 880px) and (max-height: 760px) {
+  :root {
+    --section-top: 24px;
+    --section-bottom: 20px;
+    --tide-h: clamp(56px, 9vh, 84px);
   }
 }
 
@@ -275,7 +405,8 @@ a { color: inherit; }
   .fn-section,
   .fn-section .fn-section-label,
   .fn-section .fn-section-title,
-  .fn-section .fn-section-inner > * {
+  .fn-section .fn-section-body,
+  .fn-section .fn-more {
     opacity: 1 !important;
     transform: none !important;
   }

@@ -1,6 +1,5 @@
 import { getPortfolioData } from '@/lib/db';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, GITHUB_URL, LINKEDIN_URL } from '@/lib/site';
-import { TideProvider } from '@/components/ui/TideContext';
 import { FnDefs } from '@/components/ui/FnDefs';
 import { StickyNav } from '@/components/nav/StickyNav';
 import { Hero } from '@/components/sections/Hero';
@@ -39,7 +38,7 @@ export default async function Home() {
     data.projects.find((p) => /rag|chatbot/i.test(p.title)) ?? null;
 
   return (
-    <TideProvider>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}
@@ -57,6 +56,6 @@ export default async function Home() {
         <Chat project={chatbotProject} />
         <Contact personal={data.personal} />
       </main>
-    </TideProvider>
+    </>
   );
 }

@@ -9,6 +9,9 @@
   padding: 0;
   border: none;
   aspect-ratio: 4 / 5;
+  /* The hero has to fit one viewport. Past this the box crops rather than
+     grows — the image is object-fit: cover, so the frame just gets shorter. */
+  max-height: min(52vh, 520px);
   border-radius: 4px;
   position: relative;
   overflow: hidden;
