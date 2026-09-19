@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   // Paste the token from Google Search Console / Bing Webmaster here to verify ownership.
-  // verification: { google: '<token>' },
+  verification: { google: 'bDFPBEbOBo2PmfiZ-9t8QudN-HvFNkpv1fu3pie7q60' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
