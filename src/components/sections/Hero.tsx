@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useRef } from 'react';
 import { MagneticCta } from '@/components/ui/MagneticCta';
 import { HeroPhoto } from '@/components/ui/HeroPhoto';
 import { Tide } from '@/components/ui/Tide';
@@ -24,7 +24,8 @@ function splitName(name: string): [string, string] {
 const PILL_CLASSES = [styles.pillSwe, styles.pillMl, styles.pillOpen];
 
 export function Hero({ personal }: HeroProps) {
-  const [mp, setMp] = useState({ x: 0.5, y: 0.5 });
+  const ref = useRef<HTMLElement>(null);
+  const frame = useRef(0);
   const reduced = useReducedMotion();
 
   const [firstName, lastName] = splitName(personal.name);
@@ -36,25 +37,30 @@ export function Hero({ personal }: HeroProps) {
     ['shooting', personal.now_shooting],
   ];
 
-  const blobStyle1 = reduced ? {} : {
-    transform: `translate(${(mp.x - 0.5) * 36}px, ${(mp.y - 0.5) * 36}px)`,
-  };
-  const blobStyle2 = reduced ? {} : {
-    transform: `translate(${(0.5 - mp.x) * 24}px, ${(0.5 - mp.y) * 24}px)`,
-  };
+  // The pointer drives two CSS variables written straight to the node, and
+  // the blobs' transforms are expressed in terms of them. Storing the pointer
+  // in React state instead re-rendered the whole hero on every mousemove —
+  // which is exactly the kind of stutter the parallax is there to avoid.
+  // Coalesced to one write per frame, since a trackpad fires far faster.
+  function onMove(e: React.MouseEvent<HTMLElement>) {
+    if (reduced) return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(() => {
+      frame.current = 0;
+      el.style.setProperty('--mx', String(x));
+      el.style.setProperty('--my', String(y));
+    });
+  }
 
   return (
-    <section
-      id="top"
-      className={styles.hero}
-      onMouseMove={(e) => {
-        if (reduced) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        setMp({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
-      }}
-    >
-      <div className={styles.blob} style={blobStyle1} />
-      <div className={`${styles.blob} ${styles.blobAlt}`} style={blobStyle2} />
+    <section ref={ref} id="top" className={styles.hero} onMouseMove={onMove}>
+      <div className={styles.blob} />
+      <div className={`${styles.blob} ${styles.blobAlt}`} />
 
       <div className={styles.grid}>
         <div className={styles.text}>

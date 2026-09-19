@@ -44,7 +44,9 @@
 }
 .grid a:hover { color: var(--rust); border-bottom-color: var(--rust); }
 
+/* Last frame on the page: details up top, footer resting on the floor. */
 .foot {
+  margin-top: auto;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;

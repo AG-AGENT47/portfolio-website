@@ -1,7 +1,16 @@
+/* The hero is the first magnetic frame: one viewport, name at the top,
+   wave on the bottom edge. Every vertical rhythm below is vh-aware so it
+   holds on a 13" laptop as well as a 27" display. */
 .hero {
   position: relative;
-  padding: 120px 56px 160px;
-  min-height: 880px;
+  /* Pointer position, -0.5…0.5 on each axis, written by onMove. */
+  --mx: 0;
+  --my: 0;
+  padding: calc(var(--nav-h) + clamp(16px, 4vh, 56px)) 56px
+           calc(var(--tide-h) + clamp(20px, 3vh, 48px));
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
   overflow: hidden;
 }
 
@@ -12,6 +21,7 @@
   background: radial-gradient(circle, rgba(179,74,31,0.45) 0%, rgba(179,74,31,0.18) 40%, transparent 70%);
   filter: blur(50px);
   border-radius: 50%;
+  transform: translate(calc(var(--mx) * 36px), calc(var(--my) * 36px));
   transition: transform 0.9s cubic-bezier(.4,0,.2,1);
   pointer-events: none;
   z-index: 0;
@@ -19,6 +29,8 @@
 .blobAlt {
   width: 480px; height: 480px;
   left: -140px; top: 360px; right: auto;
+  /* Counter-drift, so the two glows part rather than slide together. */
+  transform: translate(calc(var(--mx) * -24px), calc(var(--my) * -24px));
   background: radial-gradient(circle, rgba(31,24,18,0.25) 0%, transparent 65%);
 }
 
@@ -29,8 +41,9 @@
   gap: 80px;
   /* Cap the content column on large displays; the blob glow stays full-bleed. */
   max-width: var(--max-w);
-  margin: 40px auto 0;
-  align-items: start;
+  width: 100%;
+  margin: 0 auto;
+  align-items: center;
 }
 
 .text { display: flex; flex-direction: column; }
@@ -41,7 +54,7 @@
   letter-spacing: 0.18em;
   color: var(--rust);
   text-transform: lowercase;
-  margin-bottom: 32px;
+  margin-bottom: clamp(14px, 2.6vh, 32px);
   opacity: 0;
   animation: fn-rise 0.9s 0.1s cubic-bezier(0.16,1,0.3,1) forwards;
 }
@@ -49,10 +62,10 @@
 .h1 {
   font-family: var(--font-serif), serif;
   font-weight: 400;
-  font-size: clamp(72px, 9vw, 144px);
+  font-size: clamp(56px, min(8.6vw, 15vh), 136px);
   line-height: 1.0;
   letter-spacing: -0.035em;
-  margin: 0 0 40px;
+  margin: 0 0 clamp(18px, 3.4vh, 40px);
   color: var(--ink);
   opacity: 0;
   animation: fn-rise 0.9s 0.18s cubic-bezier(0.16,1,0.3,1) forwards;
@@ -62,11 +75,11 @@
 
 .lede {
   font-family: var(--font-serif), serif;
-  font-size: 22px;
+  font-size: clamp(18px, 2.4vh, 22px);
   line-height: 1.5;
   max-width: 560px;
   color: var(--ink-2);
-  margin: 0 0 36px;
+  margin: 0 0 clamp(16px, 3vh, 36px);
   opacity: 0;
   animation: fn-rise 0.9s 0.32s cubic-bezier(0.16,1,0.3,1) forwards;
 }
@@ -74,7 +87,7 @@
 
 .pills {
   display: flex; flex-wrap: wrap; gap: 10px;
-  margin: 0 0 36px;
+  margin: 0 0 clamp(16px, 3vh, 36px);
   opacity: 0;
   animation: fn-rise 0.9s 0.42s cubic-bezier(0.16,1,0.3,1) forwards;
 }
@@ -131,8 +144,9 @@
 /* ---- Mobile ---- */
 @media (max-width: 879px) {
   .hero {
-    padding: 80px 24px 120px;
-    min-height: auto;
+    padding: calc(var(--nav-h) + 36px) 24px calc(var(--tide-h) + 40px);
+    min-height: 0;
+    display: block;
   }
   .grid {
     grid-template-columns: 1fr;
@@ -166,5 +180,6 @@
     opacity: 1;
     transform: none;
   }
+  .blob { transition: none; }
   .pillOpen::before { animation: none; }
 }

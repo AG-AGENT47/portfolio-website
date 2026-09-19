@@ -15,7 +15,8 @@ const NAV_LINKS = [
 
 export function StickyNav() {
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState('about');
+  // '' while the hero is the framed section — nothing in the nav is current yet.
+  const [active, setActive] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -29,13 +30,15 @@ export function StickyNav() {
     const obs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
-          if (e.isIntersecting) setActive(e.target.id);
+          if (e.isIntersecting) setActive(e.target.id === 'top' ? '' : e.target.id);
         }
       },
       { rootMargin: '-40% 0px -55% 0px' }
     );
-    NAV_LINKS.forEach((l) => {
-      const el = document.getElementById(l.id);
+    // The hero is observed too, so scrolling back to the top clears the
+    // marker instead of leaving `about` lit under a section that isn't there.
+    [...NAV_LINKS.map((l) => l.id), 'top'].forEach((id) => {
+      const el = document.getElementById(id);
       if (el) obs.observe(el);
     });
     return () => obs.disconnect();
