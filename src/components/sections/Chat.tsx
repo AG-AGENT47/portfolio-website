@@ -6,7 +6,9 @@ import { streamChat } from '@/lib/api';
 import type { ChatMessage, Project } from '@/lib/types';
 import styles from './Chat.module.css';
 
-const SUGGESTIONS = ['Tell me about Uber', "What's IVF-PQ?", 'ML or SWE?', 'Best project?'];
+// Name Avyakt in the Uber chip: a bare "Tell me about Uber" sometimes reads to the
+// LLM as a question about the company and triggers the off-topic refusal.
+const SUGGESTIONS = ['What did Avyakt do at Uber?', "What's IVF-PQ?", 'ML or SWE?', 'Best project?'];
 
 const API_STATE_LABEL = {
   connecting: 'connecting',
